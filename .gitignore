@@ -1,0 +1,16 @@
+# Java / Spring
+**/target/
+*.log
+*.class
+
+# Node / Angular
+shopstream-frontend/node_modules/
+shopstream-frontend/dist/
+
+# OS / IDE files
+.DS_Store
+.idea/
+.vscode/
+
+# Docker
+*.pid

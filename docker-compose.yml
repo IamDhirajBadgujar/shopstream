@@ -1,0 +1,101 @@
+# docker-compose.yml (no top-level 'version' key)
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      retries: 10
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.1
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      # Two named listeners: one for container-to-container (kafka:9092)
+      # and one for host access (localhost:29092). Both are defined in LISTENERS.
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      # Advertise internal hostname for containers and localhost:29092 for host clients
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      # reduce log verbosity (optional)
+      CONFLUENT_LOG4J_ROOT_LOGLEVEL: INFO
+    ports:
+      - "9092:9092"    # container->container default mapping (internal)
+      - "29092:29092"  # host clients should use localhost:29092
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "kafka-topics --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 10s
+      retries: 12
+
+  # Optional: MySQL in Docker. If you use local MySQL, you can remove this service block.
+  # mysql:
+  #   image: mysql:8.0
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: rootpass
+  #     MYSQL_DATABASE: shopstream
+  #     MYSQL_USER: shopuser
+  #     MYSQL_PASSWORD: shoppass
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   healthcheck:
+  #     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+  #     interval: 10s
+  #     retries: 10
+
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      retries: 10
+
+  # Optional build stubs for your Spring Boot services.
+  # Uncomment these blocks when you have run `mvn clean package` and have target/*.jar
+  # and you want to run services as docker containers. If you run services from IDE,
+  # you can leave these commented.
+#
+#  order-service:
+#    build:
+#      context: ./order-service
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - kafka
+#      - mongodb
+#      # if you want the container to use Dockerized MySQL uncomment mysql in depends_on and
+#      # ensure application-docker.properties uses datasource to jdbc:mysql://mysql:3306/...
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    ports:
+#      - "8080:8080"
+#
+#  inventory-service:
+#    build:
+#      context: ./inventory-service
+#      dockerfile: Dockerfile
+#    depends_on:
+#      - kafka
+#      - mongodb
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#    ports:
+#      - "8081:8081"
+#
+volumes:
+  mysql-data:
+  mongo-data:

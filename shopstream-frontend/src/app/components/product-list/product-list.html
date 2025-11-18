@@ -1,0 +1,17 @@
+<div>
+  <h2>Products</h2>
+
+  <div *ngIf="loading">Loading products…</div>
+  <div *ngIf="error" style="color:red">{{ error }}</div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px">
+    <div *ngFor="let p of products" style="border:1px solid #ddd;padding:12px;border-radius:6px">
+      <h3 style="margin:0 0 8px">{{ p.name }}</h3>
+      <div>Stock: {{ p.stock }}</div>
+      <div>Price: ₹{{ p.price }}</div>
+      <button (click)="addToCart(p)" style="margin-top:8px;padding:6px 10px">Add to Cart</button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && products.length === 0">No products found.</div>
+</div>
