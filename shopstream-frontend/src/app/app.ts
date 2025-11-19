@@ -1,18 +1,28 @@
 import { Component } from '@angular/core';
-import { ProductListComponent } from './components/product-list/product-list';
+import { RouterLink, RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { CartService } from './services/cart.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  // only standalone components / directives / pipes here — NOT HttpClientModule
-  imports: [ProductListComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink],
   template: `
-    <header style="padding:16px;border-bottom:1px solid #eee">
-      <h1 style="margin:0">ShopStream</h1>
+    <header style="display:flex;align-items:center;justify-content:space-between;padding:12px;border-bottom:1px solid #eee">
+      <div style="font-weight:700">ShopStream</div>
+      <nav>
+        <a routerLink="/" style="margin-right:12px">Shop</a>
+        <a routerLink="/cart">Cart (<span>{{ count }}</span>)</a>
+      </nav>
     </header>
-    <main style="padding:16px">
-      <app-product-list></app-product-list>
+    <main style="padding:12px">
+      <router-outlet></router-outlet>
     </main>
-  `,
+  `
 })
-export class App {}
+export class App {
+  count = 0;
+  constructor(cart: CartService) {
+    cart.items$.subscribe(items => this.count = items.reduce((s,i)=>s+i.qty,0));
+  }
+}

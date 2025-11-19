@@ -1,0 +1,33 @@
+<!-- checkout.component.html -->
+<div style="max-width:700px;margin:0 auto;padding:12px">
+  <h2>Checkout</h2>
+
+  <ng-container *ngIf="items$ | async as items">
+    <div *ngIf="items.length === 0">
+      Your cart is empty. <a routerLink="/">Go shopping</a>
+    </div>
+
+    <div *ngIf="items.length > 0">
+      <div *ngFor="let i of items; trackBy: trackByProductId" style="margin-bottom:6px">
+        <div>{{ i.name }} × {{ i.qty }} — ₹{{ (i.price || 0) * (i.qty || 0) }}</div>
+      </div>
+
+      <div style="margin-top:8px">
+        <label>Shipping Address</label><br />
+        <textarea rows="3" [(ngModel)]="address" style="width:100%"></textarea>
+      </div>
+
+      <div style="margin-top:12px">
+        <strong>Total: ₹{{ total }}</strong>
+      </div>
+
+      <div style="margin-top:12px">
+        <button (click)="placeOrder()" [disabled]="loading">
+          {{ loading ? 'Placing order...' : 'Place Order' }}
+        </button>
+      </div>
+
+      <div *ngIf="error" style="color:red;margin-top:8px">{{ error }}</div>
+    </div>
+  </ng-container>
+</div>

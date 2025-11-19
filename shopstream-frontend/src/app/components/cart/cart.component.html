@@ -1,0 +1,47 @@
+<   div style="max-width:900px;margin:0 auto;padding:12px">
+  <h2>Cart</h2>
+
+  <!-- cart.component.html -->
+<div *ngIf="items$ | async as items">
+  <div *ngIf="items.length === 0">Your cart is empty.</div>
+
+  <table *ngIf="items.length > 0" style="width:100%;border-collapse:collapse">
+    <thead>
+      <tr>
+        <th style="text-align:left">Product</th>
+        <th>Price</th>
+        <th>Qty</th>
+        <th>Subtotal</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let i of items; trackBy: trackByProductId">
+        <td>{{ i.name }}</td>
+        <td>₹{{ i.price }}</td>
+        <td>
+          <!-- use change or input depending on UX; keep min=0 if you want to allow removal -->
+          <input
+            type="number"
+            [value]="i.qty"
+            min="1"
+            (change)="updateQty(i.productId, $event)"
+            style="width:60px"
+          />
+        </td>
+        <td>₹{{ (i.price || 0) * (i.qty || 0) }}</td>
+        <td>
+          <button (click)="remove(i.productId)">Remove</button>
+          <button type="button" (click)="log(i)">Debug</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="items.length > 0" style="margin-top:12px">
+    <strong>Total: ₹{{ total() }}</strong>
+    <div style="margin-top:8px">
+      <button (click)="checkout()">Proceed to Checkout</button>
+    </div>
+  </div>
+</div>

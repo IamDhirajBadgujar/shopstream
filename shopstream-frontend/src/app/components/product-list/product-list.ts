@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductService } from '../../services/product.service';
+import { CartService } from '../../services/cart.service';
+
+
 
 @Component({
   selector: 'app-product-list',
@@ -8,12 +11,13 @@ import { ProductService } from '../../services/product.service';
   imports: [CommonModule],
   templateUrl: './product-list.html',
 })
+
 export class ProductListComponent implements OnInit {
   products: any[] = [];
   loading = true;
   error = '';
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService, private cart: CartService) {}
 
   ngOnInit(): void {
     this.productService.getAllProducts().subscribe({
@@ -21,12 +25,11 @@ export class ProductListComponent implements OnInit {
       error: (err) => { this.error = 'Failed to load products'; this.loading = false; console.error(err); }
     });
   }
-
+  
   // Called from template
-  addToCart(product: any) {
-    // temporary: log to console and show a quick browser alert
-    console.log('Add to cart:', product);
-    alert(`Added "${product.name}" to cart (demo)`);
-    // later: integrate a CartService to store items
-  }
+ addToCart(product: any) {
+  this.cart.add(product, 1);
+  // optional: show a friendly message
+  alert(`Added "${product.name}" to cart`);
+}
 }
