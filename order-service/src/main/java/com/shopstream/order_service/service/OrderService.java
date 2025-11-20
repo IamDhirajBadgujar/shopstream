@@ -2,8 +2,8 @@ package com.shopstream.order_service.service;
 
 
 
-import com.shopstream.order_service.DTO.CreateOrderRequest;
-import com.shopstream.order_service.DTO.OrderCreatedEvent;
+import com.shopstream.order_service.dto.CreateOrderRequest;
+import com.shopstream.order_service.dto.OrderCreatedEvent;
 import com.shopstream.order_service.entity.Order;
 import com.shopstream.order_service.entity.OrderItem;
 import com.shopstream.order_service.repository.OrderRepository;

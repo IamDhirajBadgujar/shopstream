@@ -1,4 +1,4 @@
-package com.shopstream.order_service.DTO;
+package com.shopstream.order_service.dto;
 
 
 import java.util.List;
