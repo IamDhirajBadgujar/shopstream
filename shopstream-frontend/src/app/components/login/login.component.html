@@ -1,0 +1,24 @@
+<div style="max-width:420px;margin:18px auto;padding:18px;border:1px solid #ddd;border-radius:6px">
+  <h2 style="margin-top:0">Login</h2>
+
+  <div *ngIf="error" style="color:#b00020;margin-bottom:8px">{{ error }}</div>
+
+  <form (ngSubmit)="submit()">
+    <div style="margin-bottom:8px">
+      <label>Username</label><br />
+      <input type="text" [(ngModel)]="username" name="username" required style="width:100%;padding:8px" />
+    </div>
+
+    <div style="margin-bottom:8px">
+      <label>Password</label><br />
+      <input type="password" [(ngModel)]="password" name="password" required style="width:100%;padding:8px" />
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center">
+      <button type="submit" [disabled]="loading" style="padding:8px 12px">
+        {{ loading ? 'Logging in...' : 'Login' }}
+      </button>
+      <a routerLink="/register">Create an account</a>
+    </div>
+  </form>
+</div>

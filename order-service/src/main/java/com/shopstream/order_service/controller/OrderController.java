@@ -29,12 +29,12 @@ public class OrderController {
     }
 
 
-    @PostMapping
-    public ResponseEntity<?> create(@RequestBody CreateOrderRequest req) {
-        Order saved = svc.createOrder(req);
-        return ResponseEntity.status(201).body(new java.util.HashMap<String, Object>() {{
-            put("orderId", saved.getId());
-            put("status", "CREATED");
-        }});
-    }
+//    @PostMapping
+//    public ResponseEntity<?> create(@RequestBody CreateOrderRequest req) {
+//        Order saved = svc.createOrder(req);
+//        return ResponseEntity.status(201).body(new java.util.HashMap<String, Object>() {{
+//            put("orderId", saved.getId());
+//            put("status", "CREATED");
+//        }});
+//    }
 }

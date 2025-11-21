@@ -2,28 +2,44 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    <form (ngSubmit)="submit()">
-      <input [(ngModel)]="username" name="username" placeholder="username"/><br/>
-      <input [(ngModel)]="password" name="password" type="password" placeholder="password"/><br/>
-      <button type="submit">Login</button>
-    </form>
-  `
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './login.component.html'
 })
 export class LoginComponent {
   username = '';
   password = '';
-  constructor(private auth: AuthService, private router: Router) {}
+  loading = false;
+  error = '';
+
+  // <-- add ActivatedRoute here
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
   submit() {
+    this.error = '';
+    this.loading = true;
+
     this.auth.login(this.username, this.password).subscribe({
-      next: () => this.router.navigate(['/']),
-      error: err => alert('Login failed')
+      next: () => {
+        this.loading = false;
+        // return to requested URL if present
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
+        this.router.navigateByUrl(returnUrl);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error || 'Login failed';
+        console.error(err);
+      }
     });
   }
 }

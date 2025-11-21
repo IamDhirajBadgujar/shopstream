@@ -2,30 +2,37 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule],
-  template: `
-    <form (ngSubmit)="submit()">
-      <input [(ngModel)]="username" name="username" placeholder="username"/><br/>
-       <input [(ngModel)]="email" name="email" placeholder="email"/><br/>
-      <input [(ngModel)]="password" name="password" type="password" placeholder="password"/><br/>
-      <button type="submit">Login</button>
-    </form>
-  `
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './register.component.html'
 })
 export class RegisterComponent {
   username = '';
-  password = '';
   email = '';
+  password = '';
+  loading = false;
+  error = '';
+
   constructor(private auth: AuthService, private router: Router) {}
+
   submit() {
-    this.auth.register(this.username,this.email, this.password).subscribe({
-      next: () => this.router.navigate(['/']),
-      error: err => alert('register failed')
+    this.error = '';
+    this.loading = true;
+    this.auth.register(this.username, this.email, this.password).subscribe({
+      next: () => {
+        this.loading = false;
+        // registered and auto-logged in (AuthService saves token)
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = err?.error || 'Registration failed';
+        console.error(err);
+      }
     });
   }
 }
