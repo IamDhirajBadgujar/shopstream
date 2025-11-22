@@ -44,14 +44,28 @@ public class AuthController {
         u.setUsername(req.getUsername());
         u.setEmail(req.getEmail());
         u.setPassword(passwordEncoder.encode(req.getPassword()));
+
+        // Always assign ROLE_USER
         Role userRole = roleRepo.findByName("ROLE_USER").orElseGet(() -> {
             Role r = new Role();
             r.setName("ROLE_USER");
             return roleRepo.save(r);
         });
         u.getRoles().add(userRole);
+
+        // If user asked to be supplier, add ROLE_SUPPLIER
+        if (req.isBeSupplier()) {
+            Role supRole = roleRepo.findByName("ROLE_SUPPLIER").orElseGet(() -> {
+                Role r = new Role();
+                r.setName("ROLE_SUPPLIER");
+                return roleRepo.save(r);
+            });
+            u.getRoles().add(supRole);
+        }
+
         User saved = userRepo.save(u);
-        String token = jwtUtil.generateToken(saved.getUsername(), List.of(userRole.getName()));
+        List<String> roleNames = saved.getRoles().stream().map(Role::getName).toList();
+        String token = jwtUtil.generateToken(saved.getUsername(), roleNames);
         return ResponseEntity.ok(new AuthResponse(token, saved.getUsername()));
     }
 

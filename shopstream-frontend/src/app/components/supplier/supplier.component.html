@@ -1,0 +1,15 @@
+<div style="max-width:640px;margin:18px auto;padding:18px;border:1px solid #ddd">
+  <h2>Supplier Dashboard</h2>
+  <div *ngIf="error" style="color:red">{{ error }}</div>
+  <div *ngIf="success" style="color:green">{{ success }}</div>
+
+  <div>
+    <label>Product name</label><br/>
+    <input [(ngModel)]="name" name="name"/><br/>
+    <label>Price</label><br/>
+    <input type="number" [(ngModel)]="price" name="price"/><br/>
+    <label>Stock</label><br/>
+    <input type="number" [(ngModel)]="stock" name="stock"/><br/><br/>
+    <button (click)="create()">Add product</button>
+  </div>
+</div>

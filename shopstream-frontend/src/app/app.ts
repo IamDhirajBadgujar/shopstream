@@ -4,7 +4,9 @@ import { CommonModule } from '@angular/common';
 import { CartService } from './services/cart.service';
 import { AuthService } from './services/auth.service';
 import { AsyncPipe } from '@angular/common';
-
+import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -20,6 +22,7 @@ import { AsyncPipe } from '@angular/common';
         <!-- If logged in show username + logout -->
         <ng-container *ngIf="(user$ | async) as username; else showLogin">
           <a routerLink="/profile">{{ username }}</a>
+          <a *ngIf="(isSupplier$ | async)" routerLink="/supplier">Supplier Dashboard</a>
           <button (click)="logout()" style="padding:6px 8px">Logout</button>
         </ng-container>
 
@@ -37,11 +40,20 @@ import { AsyncPipe } from '@angular/common';
 })
 export class App {
   count = 0;
-  user$ ;
+  user$: Observable<string | null>;
+  isSupplier$: Observable<boolean>;
 
-  constructor(private cart: CartService, private auth: AuthService) {
-    // Subscribe to cart count
-     this.user$ = this.auth.user$;
+  constructor(private cart: CartService, private auth: AuthService,) {
+
+ 
+    // Observable that emits true when the user has supplier role
+    this.isSupplier$ = this.auth.roles$.pipe(
+      map((roles: string[]) => roles?.includes('ROLE_SUPPLIER') ?? false)
+    );
+
+    this.user$ = this.auth.user$;
+
+    // keep cart count updated
     this.cart.items$.subscribe(items => {
       this.count = items.reduce((sum, i) => sum + i.qty, 0);
     });

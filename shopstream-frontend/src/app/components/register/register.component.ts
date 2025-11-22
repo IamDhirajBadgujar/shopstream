@@ -16,13 +16,15 @@ export class RegisterComponent {
   password = '';
   loading = false;
   error = '';
+ beSupplier: boolean = false; 
+
 
   constructor(private auth: AuthService, private router: Router) {}
 
   submit() {
     this.error = '';
     this.loading = true;
-    this.auth.register(this.username, this.email, this.password).subscribe({
+    this.auth.register(this.username, this.email, this.password, this.beSupplier).subscribe({
       next: () => {
         this.loading = false;
         // registered and auto-logged in (AuthService saves token)

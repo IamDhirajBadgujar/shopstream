@@ -24,8 +24,8 @@ export class AuthService {
     }
   }
 
-  register(username: string, email:string, password:string) {
-    return this.http.post<AuthResp>('http://localhost:8080/api/auth/register', { username, email, password })
+  register(username: string, email:string, password:string, beSupplier:boolean) {
+    return this.http.post<AuthResp>('http://localhost:8080/api/auth/register', { username, email, password , beSupplier })
       .pipe(tap(res => this.saveToken(res.token)));
   }
 
@@ -34,12 +34,30 @@ export class AuthService {
       .pipe(tap(res => this.saveToken(res.token)));
   }
 
-  private saveToken(token: string) {
-    if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
-      localStorage.setItem(this.KEY, token);
-    }
-    this._user$.next(this.getUsernameFromToken());
+  private _roles$ = new BehaviorSubject<string[]>([]);
+roles$ = this._roles$.asObservable();
+
+private saveToken(token: string) {
+  if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
+    localStorage.setItem(this.KEY, token);
   }
+  const username = this.getUsernameFromToken();
+  this._user$.next(username);
+
+  // parse roles
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const roles = payload.roles || [];
+    this._roles$.next(Array.isArray(roles) ? roles : [roles]);
+  } catch {
+    this._roles$.next([]);
+  }
+}
+
+isSupplier() {
+  return this._roles$.value.includes('ROLE_SUPPLIER');
+}
+
 
  logout() {
   if (typeof window !== 'undefined' && typeof localStorage !== 'undefined') {
@@ -73,4 +91,5 @@ export class AuthService {
       return null;
     }
   }
+  
 }

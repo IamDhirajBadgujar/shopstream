@@ -4,6 +4,13 @@ public class RegisterRequest {
 	 private String username;
 	  private String email;
 	  private String password;
+	  private boolean beSupplier;  
+	  public boolean isBeSupplier() {
+		return beSupplier;
+	}
+	  public void setBeSupplier(boolean beSupplier) {
+		  this.beSupplier = beSupplier;
+	  }
 	  public String getUsername() {
 		  return username;
 	  }

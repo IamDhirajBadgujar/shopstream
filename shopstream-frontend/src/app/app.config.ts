@@ -11,6 +11,7 @@ import { OrderSuccessComponent } from './components/order-success/order-success.
 import { TokenInterceptor } from './interceptors/token.interceptor';
 import { ProfileComponent } from './components/profile/profile.component';
 import { authGuard } from './guards/auth.guard';
+import { SupplierComponent } from './components/supplier/supplier.component';
 export const appConfig: ApplicationConfig = {
   providers: [
     // Provide HttpClientModule + FormsModule for the app
@@ -25,7 +26,9 @@ export const appConfig: ApplicationConfig = {
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
+  { path: 'supplier', component: SupplierComponent},
   { path: '**', redirectTo: '' }
+  
 ])
 ,
 

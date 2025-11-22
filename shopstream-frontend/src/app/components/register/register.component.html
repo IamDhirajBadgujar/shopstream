@@ -18,6 +18,9 @@
       <label>Password</label><br />
       <input type="password" [(ngModel)]="password" name="password" required style="width:100%;padding:8px" />
     </div>
+    <div style="margin-bottom:8px">
+  <label><input type="checkbox" [(ngModel)]="beSupplier" name="beSupplier" /> I want to sell on ShopStream (Become a supplier)</label>
+</div>
 
     <div style="display:flex;gap:8px;align-items:center">
       <button type="submit" [disabled]="loading" style="padding:8px 12px">

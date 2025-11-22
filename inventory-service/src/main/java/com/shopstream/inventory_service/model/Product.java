@@ -13,8 +13,15 @@ public class Product {
     private String name;
     private Integer stock;
     private BigDecimal price;
+    private String supplier; 
 
-    // getters/setters
+    public String getSupplier() {
+		return supplier;
+	}
+	public void setSupplier(String supplier) {
+		this.supplier = supplier;
+	}
+	// getters/setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
