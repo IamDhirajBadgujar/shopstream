@@ -40,6 +40,7 @@ public class AuthController {
         if (userRepo.existsByEmail(req.getEmail())) {
             return ResponseEntity.badRequest().body("Email already exists");
         }
+        System.out.println("Started Registering the user");
         User u = new User();
         u.setUsername(req.getUsername());
         u.setEmail(req.getEmail());
@@ -71,6 +72,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest req) {
+    	System.out.println("Started logging the user");
         var possible = userRepo.findByUsername(req.getUsername());
         if (possible.isEmpty()) return ResponseEntity.status(401).body("Invalid credentials");
         User u = possible.get();

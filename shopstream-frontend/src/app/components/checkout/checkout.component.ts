@@ -37,7 +37,7 @@ export class CheckoutComponent {
     this.error = '';
     // use latest snapshot from the service value for posting
     const itemsSnapshot: { productId: string; qty: number; price: number }[] =
-      (this.cart?.value ?? []).map(i => ({
+      (this.cart?.value ?? []).map((i: CartLine) => ({
         productId: i.productId,
         qty: i.qty ?? 0,
         price: i.price ?? 0,

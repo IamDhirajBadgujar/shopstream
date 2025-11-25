@@ -52,22 +52,23 @@ public class SecurityConfig {
     }
 
     @Bean
+    
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // JWT filter
         JwtAuthFilter jwtFilter = new JwtAuthFilter(jwtUtil);
 
         http
-            .cors().and()                  // <-- enable CORS support (uses corsConfigurationSource bean)
+            .cors().and()
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/actuator/**", "/api/public/**", "/swagger-ui/**").permitAll()
-                // you may want to allow OPTIONS preflight through as well
+                .requestMatchers("/login", "/api/auth/**", "/actuator/**", "/api/public/**", "/swagger-ui/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
-            .httpBasic();
+            // disable HTTP Basic so browser won't show the popup
+            .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
+
 }

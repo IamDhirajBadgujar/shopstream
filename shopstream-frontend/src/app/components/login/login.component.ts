@@ -17,7 +17,6 @@ export class LoginComponent {
   loading = false;
   error = '';
 
-  // <-- add ActivatedRoute here
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -25,20 +24,49 @@ export class LoginComponent {
   ) {}
 
   submit() {
+    console.log('--- LOGIN SUBMIT START ---');
+    console.log('Form Values:', {
+      username: this.username,
+      password: '(hidden)'
+    });
+
     this.error = '';
     this.loading = true;
 
+    console.log('Calling AuthService.login()...');
+    
     this.auth.login(this.username, this.password).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Login Response Received:', response);
+        console.log('AuthService Token:', this.auth.token);
+        
+        console.log('AuthService User$ current value:', this.auth['_user$'].value);
+        console.log('AuthService Roles$ current value:', this.auth['_roles$'].value);
+
         this.loading = false;
-        // return to requested URL if present
+
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
+        console.log('Redirecting to:', returnUrl);
+
         this.router.navigateByUrl(returnUrl);
+        console.log('Navigation Done.');
       },
-      error: (err) => {
+      error: (err: any) => {
         this.loading = false;
+
+        console.log('--- LOGIN ERROR ---');
+        console.error('Full HttpErrorResponse:', err);
+
+        if (err?.error instanceof ProgressEvent) {
+          console.log('Network / CORS Issue (ProgressEvent)');
+        }
+
+        if (typeof err?.error === 'string') {
+          console.log('Raw Error Text:', err.error);
+        }
+
         this.error = err?.error || 'Login failed';
-        console.error(err);
+        console.log('Displayed Error:', this.error);
       }
     });
   }

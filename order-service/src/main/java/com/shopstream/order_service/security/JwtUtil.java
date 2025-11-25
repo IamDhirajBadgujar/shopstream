@@ -31,6 +31,22 @@ public class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+    public Long extractUserId(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            Object uid = claims.get("userId");
+            if (uid == null) {
+                // try subject if you stored numeric userId there (fallback)
+                String sub = claims.getSubject();
+                try { return Long.parseLong(sub); } catch (NumberFormatException ignored) {}
+                return null;
+            }
+            if (uid instanceof Number) return ((Number) uid).longValue();
+            try { return Long.parseLong(uid.toString()); } catch (NumberFormatException e) { return null; }
+        } catch (JwtException ex) {
+            return null;
+        }
+    }
 
     public boolean validateToken(String token) {
         try {

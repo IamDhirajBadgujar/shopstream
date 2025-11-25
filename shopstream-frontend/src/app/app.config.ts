@@ -20,6 +20,7 @@ export const appConfig: ApplicationConfig = {
     // Provide the router with standalone component routes
   provideRouter([
   { path: '', component: ProductList },
+    
   { path: 'cart', component: CartComponent, canActivate: [authGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'order-success/:id', component: OrderSuccessComponent },

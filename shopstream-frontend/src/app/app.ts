@@ -7,6 +7,7 @@ import { AsyncPipe } from '@angular/common';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -40,18 +41,23 @@ import { Router } from '@angular/router';
 })
 export class App {
   count = 0;
+  // now emits username string or null
   user$: Observable<string | null>;
   isSupplier$: Observable<boolean>;
-
+ngOnInit() {
+  this.auth.restoreSession();
+}
   constructor(private cart: CartService, private auth: AuthService,) {
 
- 
     // Observable that emits true when the user has supplier role
     this.isSupplier$ = this.auth.roles$.pipe(
       map((roles: string[]) => roles?.includes('ROLE_SUPPLIER') ?? false)
     );
 
-    this.user$ = this.auth.user$;
+    // map AuthUser -> username (string | null)
+    this.user$ = this.auth.user$.pipe(
+      map(u => (u && u.username) ? u.username : null)
+    );
 
     // keep cart count updated
     this.cart.items$.subscribe(items => {
