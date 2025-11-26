@@ -16,7 +16,7 @@ import jakarta.persistence.TemporalType;
 	public class CartItem {
 	  @Id @GeneratedValue private Long id;
 	  @ManyToOne @JoinColumn(name="cart_id") private Cart cart;
-	  private Long productId;
+	  private String productId;
 	  private Integer quantity;
 	  @Temporal(TemporalType.TIMESTAMP)
 	  private Date addedAt;
@@ -32,11 +32,11 @@ import jakarta.persistence.TemporalType;
 	  public void setCart(Cart cart) {
 		  this.cart = cart;
 	  }
-	  public Long getProductId() {
+	  public String getProductId() {
 		  return productId;
 	  }
-	  public void setProductId(Long productId) {
-		  this.productId = productId;
+	  public void setProductId(String string) {
+		  this.productId = string;
 	  }
 	  public Integer getQuantity() {
 		  return quantity;

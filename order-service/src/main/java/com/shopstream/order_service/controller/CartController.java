@@ -1,6 +1,10 @@
 package com.shopstream.order_service.controller;
 
+import java.security.Principal;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,15 +14,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.shopstream.order_service.dto.AddToCartRequest;
+import com.shopstream.order_service.dto.MergeCartRequest;
 import com.shopstream.order_service.entity.Cart;
 import com.shopstream.order_service.security.CustomUserPrincipal;
 import com.shopstream.order_service.service.CartService;
+import com.shopstream.order_service.service.UserService;
+
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
 
   @Autowired CartService cartService;
+
+  @Autowired UserService userService;
+
+  
 
   // assume userId comes from authenticated principal (not from client!)
   @GetMapping
@@ -28,15 +40,35 @@ public class CartController {
     return cartService.getOrCreateCart(principal.getUserId());
   }
 
-//  @PostMapping("/items")
-//  public Cart addItem(@AuthenticationPrincipal CustomUserPrincipal principal,
-//                      @RequestBody AddItemRequest req) {
-//    return cartService.addItem(principal.getUserId(), req.productId, req.quantity);
-//  }
-
   @DeleteMapping("/items/{productId}")
   public Cart removeItem(@AuthenticationPrincipal CustomUserPrincipal principal,
                          @PathVariable Long productId) {
     return cartService.removeItem(principal.getUserId(), productId);
   }
+  
+  // ---------- add item to cart ----------
+  @PostMapping("/items")
+  public ResponseEntity<?> addItem(@RequestBody AddToCartRequest req, Principal principal) {
+      try {
+          Long userId = userService.getUserIdFromPrincipal(principal); // decode from JWT / DB
+          Cart cart = cartService.addToCart(userId, req.getProductId(), req.getQuantity());
+          return ResponseEntity.ok(cart);
+      } catch (RuntimeException  ex) {
+          return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+      }
+  }
+
+
+  // ---------- merge guest cart ----------
+  @PostMapping("/merge")
+  public ResponseEntity<?> mergeGuestCart(@RequestBody MergeCartRequest req) {
+      try {
+          Cart cart = cartService.mergeGuestCart(req.getUserId(), req.getItems());
+          return ResponseEntity.ok(cart);
+      } catch (RuntimeException ex) {
+          return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+      }
+  }
+  
+  
 }

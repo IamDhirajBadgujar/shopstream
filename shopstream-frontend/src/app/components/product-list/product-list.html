@@ -1,17 +1,34 @@
-<div>
-  <h2>Products</h2>
+<div *ngFor="let p of products" style="border:1px solid #ddd;padding:12px;border-radius:6px">
 
-  <div *ngIf="loading">Loading products…</div>
-  <div *ngIf="error" style="color:red">{{ error }}</div>
+  <h3 style="margin:0 0 8px">{{ p.name }}</h3>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px">
-    <div *ngFor="let p of products" style="border:1px solid #ddd;padding:12px;border-radius:6px">
-      <h3 style="margin:0 0 8px">{{ p.name }}</h3>
-      <div>Stock: {{ p.stock }}</div>
-      <div>Price: ₹{{ p.price }}</div>
-      <button (click)="addToCart(p)" style="margin-top:8px;padding:6px 10px">Add to Cart</button>
-    </div>
+  <!-- Stock Label -->
+  <div *ngIf="p.stock > 0; else outOfStock">
+    Stock: {{ p.stock }}
   </div>
 
-  <div *ngIf="!loading && products.length === 0">No products found.</div>
+  <ng-template #outOfStock>
+    <div style="color:red;font-weight:600">Out of Stock</div>
+  </ng-template>
+
+  <!-- Price -->
+  <div>
+    <ng-container *ngIf="p.stock > 0; else unavailablePrice">
+      Price: ₹{{ p.price }}
+    </ng-container>
+
+    <ng-template #unavailablePrice>
+      <span>Price: Unavailable</span>
+    </ng-template>
+  </div>
+
+  <!-- Add to Cart Button -->
+  <button 
+    (click)="addToCart(p)" 
+    [disabled]="p.stock === 0"
+    style="margin-top:8px;padding:6px 10px">
+
+    {{ p.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
+  </button>
+
 </div>

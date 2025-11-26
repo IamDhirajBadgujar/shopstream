@@ -1,6 +1,6 @@
 package com.shopstream.order_service.service;
 
-
+import com.shopstream.order_service.InventoryClient;
 import com.shopstream.order_service.dto.CartItemDTO;
 import com.shopstream.order_service.entity.Cart;
 import com.shopstream.order_service.entity.CartItem;
@@ -17,16 +17,18 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final InventoryClient inventoryClient;
 
     public CartService(CartRepository cartRepository,
-                       CartItemRepository cartItemRepository) {
+                       CartItemRepository cartItemRepository,
+                       InventoryClient inventoryClient) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
+        this.inventoryClient = inventoryClient;
     }
 
-    /**
-     * Fetches the cart for a given userId or creates a new one if not present.
-     */
+    // ---------- existing methods ----------
+
     public Cart getOrCreateCart(Long userId) {
         return cartRepository.findByUserId(userId)
                 .orElseGet(() -> {
@@ -38,48 +40,80 @@ public class CartService {
                 });
     }
 
-    /**
-     * Returns current cart (null if not exists). Prefer getOrCreateCart when you want to ensure one exists.
-     */
     @Transactional(readOnly = true)
     public Optional<Cart> getCart(Long userId) {
         return cartRepository.findByUserId(userId);
     }
 
     /**
-     * Add quantity of a product to user's cart. If item exists, increments quantity.
+     * Add quantity of a product to user's cart.
+     * Enforces:
+     *  - cannot add if product stock <= 0
+     *  - cannot add more than available stock (existing + new > stock)
      */
-    public Cart addItem(Long userId, Long productId, int quantity) {
-        if (quantity <= 0) throw new IllegalArgumentException("quantity must be > 0");
-
-        Cart cart = getOrCreateCart(userId);
-
-        Optional<CartItem> existing = cart.getItems().stream()
-                .filter(i -> Objects.equals(i.getProductId(), productId))
-                .findFirst();
-
-        if (existing.isPresent()) {
-            CartItem item = existing.get();
-            item.setQuantity(item.getQuantity() + quantity);
-            cartItemRepository.save(item);
-        } else {
-            CartItem item = new CartItem();
-            item.setCart(cart);
-            item.setProductId(productId);
-            item.setQuantity(quantity);
-            item.setAddedAt(new Date());
-            cart.getItems().add(item);
-            cartItemRepository.save(item);
+    public Cart addToCart(Long userId, String string, int qtyToAdd) {
+        if (qtyToAdd <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
         }
 
-        // ensure the cart is refreshed and returned
+        // 1️⃣ Get product info (stock, price, etc.) from inventory-service
+        InventoryClient.ProductDto product = inventoryClient.getProduct(string);
+        if (product == null) {
+            throw new RuntimeException("Product not found in inventory");
+        }
+
+        int stock = product.getStock() != null ? product.getStock() : 0;
+
+        // 2️⃣ If product is out of stock
+        if (stock <= 0) {
+            throw new RuntimeException("Product is out of stock");
+        }
+
+        // 3️⃣ Load or create cart for user
+        Cart cart = getOrCreateCart(userId);
+
+        // 4️⃣ Find existing CartItem for this product
+        CartItem existing = cart.getItems().stream()
+                .filter(i -> Objects.equals(i.getProductId(), string))
+                .findFirst()
+                .orElse(null);
+
+        int existingQty = existing != null ? existing.getQuantity() : 0;
+        int requestedTotal = existingQty + qtyToAdd;
+
+        // 5️⃣ Enforce "cannot exceed stock"
+        if (requestedTotal > stock) {
+            throw new RuntimeException(
+                    "Cannot add more than available stock (" + stock + "). Already in cart: " + existingQty
+            );
+        }
+
+        // 6️⃣ Create or update CartItem
+        if (existing == null) {
+            CartItem item = new CartItem();
+            item.setCart(cart);
+            item.setProductId(string);
+            item.setQuantity(qtyToAdd);
+            item.setAddedAt(new Date());
+
+            // optional: snapshot name/price in cart if you have fields in CartItem
+            // item.setProductName(product.getName());
+            // item.setPriceAtTime(product.getPrice());
+
+            cart.getItems().add(item);
+            cartItemRepository.save(item);
+        } else {
+            existing.setQuantity(requestedTotal);
+            cartItemRepository.save(existing);
+        }
+
+        // return latest cart from DB
         return cartRepository.findById(cart.getId()).orElse(cart);
     }
 
-    /**
-     * Update quantity for a product in the cart. If quantity <= 0, the item will be removed.
-     */
-    public Cart updateItemQuantity(Long userId, Long productId, int quantity) {
+    // ---------- your existing methods (unchanged) ----------
+
+    public Cart updateItemQuantity(Long userId, String productId, int quantity) {
         Cart cart = getOrCreateCart(userId);
 
         Optional<CartItem> existing = cart.getItems().stream()
@@ -96,7 +130,7 @@ public class CartService {
                 cartItemRepository.save(item);
             }
         } else {
-            if (quantity > 0) { // create new if not exists and qty > 0
+            if (quantity > 0) {
                 CartItem item = new CartItem();
                 item.setCart(cart);
                 item.setProductId(productId);
@@ -110,9 +144,6 @@ public class CartService {
         return cartRepository.findById(cart.getId()).orElse(cart);
     }
 
-    /**
-     * Remove a product from user's cart.
-     */
     public Cart removeItem(Long userId, Long productId) {
         Cart cart = getOrCreateCart(userId);
 
@@ -131,9 +162,6 @@ public class CartService {
         return cartRepository.findById(cart.getId()).orElse(cart);
     }
 
-    /**
-     * Clear whole cart for a user (used after successful checkout).
-     */
     public void clearCart(Long userId) {
         cartRepository.findByUserId(userId).ifPresent(cart -> {
             cartItemRepository.deleteAll(cart.getItems());
@@ -142,11 +170,6 @@ public class CartService {
         });
     }
 
-    /**
-     * Merge guest items into user's cart. If an item exists, sums quantities.
-     *
-     * guestItems: List of pairs (productId, quantity) coming from frontend guest cart.
-     */
     public Cart mergeGuestCart(Long userId, List<CartItemDTO> guestItems) {
         if (guestItems == null || guestItems.isEmpty()) {
             return getOrCreateCart(userId);
@@ -154,8 +177,7 @@ public class CartService {
 
         Cart cart = getOrCreateCart(userId);
 
-        // Map existing items for quick lookup
-        Map<Long, CartItem> existingByProduct = new HashMap<>();
+        Map<String, CartItem> existingByProduct = new HashMap<>();
         for (CartItem ci : cart.getItems()) {
             existingByProduct.put(ci.getProductId(), ci);
         }
@@ -179,7 +201,4 @@ public class CartService {
 
         return cartRepository.findById(cart.getId()).orElse(cart);
     }
-
-      
 }
-
