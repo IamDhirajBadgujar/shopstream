@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import com.shopstream.order_service.service.UserService;
 
 @RestController
 @RequestMapping("/api/cart")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CartController {
 
   @Autowired CartService cartService;
@@ -60,15 +62,15 @@ public class CartController {
 
 
   // ---------- merge guest cart ----------
-  @PostMapping("/merge")
-  public ResponseEntity<?> mergeGuestCart(@RequestBody MergeCartRequest req) {
-      try {
-          Cart cart = cartService.mergeGuestCart(req.getUserId(), req.getItems());
-          return ResponseEntity.ok(cart);
-      } catch (RuntimeException ex) {
-          return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
-      }
-  }
+//  @PostMapping("/merge")
+//  public ResponseEntity<?> mergeGuestCart(@RequestBody MergeCartRequest req) {
+//      try {
+//          Cart cart = cartService.mergeGuestCart(req.getUserId(), req.getItems());
+//          return ResponseEntity.ok(cart);
+//      } catch (RuntimeException ex) {
+//          return ResponseEntity.badRequest().body(Map.of("error", ex.getMessage()));
+//      }
+//  }
   
   
 }

@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './product-list.html',
+  styleUrls: ['./product-list.scss'],
 })
 export class ProductList implements OnInit {
   products: any[] = [];
