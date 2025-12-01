@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { CartService, CartLine } from '../../services/cart.service';
+import { AuthService } from '../../services/auth.service'; // 👈 import
 
 @Component({
   selector: 'app-checkout',
@@ -19,23 +20,38 @@ export class CheckoutComponent {
   public loading = false;
   public success: any = null;
   public error = '';
+  public userid: string | null = null;   // 👈 keep userId here
 
   // expose observable so template doesn't touch cart directly
   public items$!: Observable<CartLine[]>;
 
-  constructor(public cart: CartService, private http: HttpClient, private router: Router) {
-    // assign here (safe because DI is ready in constructor for standalone)
+  constructor(
+    public cart: CartService,
+    private http: HttpClient,
+    private router: Router,
+    private auth: AuthService,           // 👈 inject AuthService
+  ) {
     this.items$ = this.cart.items$;
+
+    // subscribe to auth user stream to get userId
+    this.auth.user$.subscribe(user => {
+      this.userid = user.userId ?? null;
+      // console.log('[Checkout] userId from AuthService:', this.userid);
+    });
   }
 
-  // keep as getter — ensure cart.total() is guarded
   public get total(): number {
     return (this.cart?.total?.() ?? 0);
   }
 
   public placeOrder(): void {
     this.error = '';
-    // use latest snapshot from the service value for posting
+
+    if (!this.userid) {
+      this.error = 'You must be logged in to place an order.';
+      return;
+    }
+
     const itemsSnapshot: { productId: string; qty: number; price: number }[] =
       (this.cart?.value ?? []).map((i: CartLine) => ({
         productId: i.productId,
@@ -54,7 +70,9 @@ export class CheckoutComponent {
     }
 
     this.loading = true;
+
     const body = {
+      userId: Number(this.userid),     // 👈 send userId to backend
       items: itemsSnapshot,
       shippingAddress: this.address,
     };
@@ -75,12 +93,10 @@ export class CheckoutComponent {
       });
   }
 
-  // helpful debug helper (optional)
   public log(item: CartLine): void {
     console.log('cart item', item);
   }
 
-  // trackBy for ngFor
   public trackByProductId(index: number, item: CartLine): string {
     return item?.productId ?? index.toString();
   }

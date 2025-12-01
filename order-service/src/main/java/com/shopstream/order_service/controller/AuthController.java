@@ -81,7 +81,8 @@ public class AuthController {
         }
         List<String> roles = u.getRoles().stream().map(Role::getName).toList();
         String token = jwtUtil.generateToken(u.getUsername(), roles);
-        return ResponseEntity.ok(new AuthResponse(token, u.getUsername()));
+        System.out.print(u.toString());
+        return ResponseEntity.ok(new AuthResponse(token, u.getUsername(),u.getId()));
     }
 
     @GetMapping("/me")

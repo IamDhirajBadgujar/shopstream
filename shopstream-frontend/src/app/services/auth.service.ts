@@ -16,9 +16,10 @@ export interface AuthUser {
 
 interface LoginResp {
   token: string;
-  userId?: string;
+  userid?: number;                 // 👈 match backend
   username?: string | null;
 }
+
 
 interface RegisterResp {
   token: string;
@@ -29,7 +30,7 @@ interface RegisterResp {
 export class AuthService {
   // internal token store (in-memory)
   private _token: string | null = null;
-
+  private userid: number | null = null;
   // public observables
   private _user$ = new BehaviorSubject<AuthUser>({ userId: null, username: null });
   public user$ = this._user$.asObservable();
@@ -95,10 +96,11 @@ login(username: string, password: string): Observable<any> {
   console.log('[AuthService] URL:', url);
   console.log('[AuthService] Payload:', { username, password: '(hidden)' });
 
-  return this.http.post<LoginResp>(url, { username, password }).pipe(
+  return this.http.post<LoginResp>(url, { username, password  }).pipe(
     tap({
       next: (resp) => {
         console.log('%c[AuthService] HTTP SUCCESS', 'color:blue;font-weight:bold;', resp);
+        console.log('[AuthService] Response UserId:', resp.userid);
       },
       error: (err) => {
         console.error('%c[AuthService] HTTP ERROR (tap)', 'color:red;font-weight:bold;', err);
@@ -112,10 +114,14 @@ login(username: string, password: string): Observable<any> {
       }
 
       this._token = resp.token;
-      try { localStorage.setItem('auth_token', resp.token); } catch(e) {}
+      this.userid = resp.userid ? (resp.userid) : null;
+      console.log('[AuthService] Derived userId:', this.userid);
 
+      try { localStorage.setItem('auth_token', resp.token); } catch(e) {}
+     
       const claims = this.decodeJwtPayload(resp.token);
-      const userId = resp.userId ? String(resp.userId) : this.getUserIdFromClaims(claims);
+      const userId = resp.userid ? String(resp.userid) : this.getUserIdFromClaims(claims);
+      console.log('[AuthService] Derived userId:',this.userid );
       const usernameFromToken = claims?.sub ?? resp.username ?? null;
       const roles = this.getRolesFromClaims(claims);
 
