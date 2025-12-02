@@ -8,6 +8,7 @@ export interface CartLine {
   name?: string;
   price?: number;
   qty: number;
+  stock?: number;
 }
 
 @Injectable({
@@ -59,33 +60,34 @@ export class CartService {
   // Public cart operations (local + server sync when logged in)
   // -----------------------
   // Add item (local update + server call if logged in)
-  async add(product: { id?: string, _id?: string, name?: string, price?: number }, qty = 1) {
-    const id = (product._id ?? product.id ?? '').toString();
-    const items = [...this._items$.value];
-    const idx = items.findIndex(i => i.productId === id);
-    if (idx >= 0) {
-      items[idx].qty += qty;
-    } else {
-      items.push({ productId: id, name: product.name, price: Number(product.price || 0), qty });
-    }
+  add(
+  product: { id?: string; _id?: string; name?: string; price?: number; stock?: number },
+  qty = 1
+) {
+  const id = (product._id ?? product.id ?? '').toString();
+  const items = [...this.value];
+  const idx = items.findIndex((i) => i.productId === id);
 
-    // optimistic local save
-    this.save(items);
+  const available = product.stock ?? Number.MAX_SAFE_INTEGER; // fallback if no stock info
 
-    // sync to server if logged in
-    if (this.isLoggedIn()) {
-      try {
-        // call backend: POST /api/cart/items
-        const updated: any = await lastValueFrom(this.http.post('/api/cart/items', { productId: id, quantity: qty }));
-        // backend returns the full cart; map to CartLine[] and replace local state
-        const mapped = this.mapServerCartToLocal(updated);
-        this.save(mapped);
-      } catch (err) {
-        // server failed: keep local optimistic state (will be re-tried or merged later)
-        console.warn('Cart sync add failed, keeping local state', err);
-      }
-    }
+  if (idx >= 0) {
+    // respect stock when increasing
+    const current = items[idx];
+    const newQty = Math.min(current.qty + qty, available);
+    items[idx] = { ...current, qty: newQty, stock: available };
+  } else {
+    items.push({
+      productId: id,
+      name: product.name,
+      price: Number(product.price || 0),
+      qty: Math.min(qty, available),
+      stock: available,
+    });
   }
+
+  this.save(items); // <- CartService.save()
+}
+
 
   async remove(productId: string) {
     const items = this._items$.value.filter(i => i.productId !== productId);

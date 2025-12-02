@@ -19,9 +19,10 @@ public class JwtUtil {
         this.expirationMillis = Long.parseLong(env.getProperty("security.jwt.expiration-ms", "86400000")); // 1 day
     }
 
-    public String generateToken(String username, List<String> roles) {
+    public String generateToken(String username, List<String> roles,Long userId) {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("roles", roles);
+        claims.put("userId", userId);
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMillis);
         return Jwts.builder()
@@ -31,22 +32,46 @@ public class JwtUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+//    public Long extractUserId(String token) {
+//        try {
+//            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+//            Object uid = claims.get("userId");
+//            if (uid == null) {
+//                // try subject if you stored numeric userId there (fallback)
+//                String sub = claims.getSubject();
+//                try { return Long.parseLong(sub); } catch (NumberFormatException ignored) {}
+//                return null;
+//            }
+//            if (uid instanceof Number) return ((Number) uid).longValue();
+//            try { return Long.parseLong(uid.toString()); } catch (NumberFormatException e) { return null; }
+//        } catch (JwtException ex) {
+//            return null;
+//        }
+//    }
+    
     public Long extractUserId(String token) {
         try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
             Object uid = claims.get("userId");
-            if (uid == null) {
-                // try subject if you stored numeric userId there (fallback)
-                String sub = claims.getSubject();
-                try { return Long.parseLong(sub); } catch (NumberFormatException ignored) {}
+            if (uid instanceof Number) return ((Number) uid).longValue();
+            if (uid != null) return Long.parseLong(uid.toString());
+
+            // fallback: if you stored numeric id in sub
+            try {
+                return Long.parseLong(claims.getSubject());
+            } catch (NumberFormatException e) {
                 return null;
             }
-            if (uid instanceof Number) return ((Number) uid).longValue();
-            try { return Long.parseLong(uid.toString()); } catch (NumberFormatException e) { return null; }
         } catch (JwtException ex) {
             return null;
         }
     }
+
 
     public boolean validateToken(String token) {
         try {
@@ -71,4 +96,5 @@ public class JwtUtil {
         }
         return java.util.List.of();
     }
+    
 }

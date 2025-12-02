@@ -66,7 +66,7 @@ public class AuthController {
 
         User saved = userRepo.save(u);
         List<String> roleNames = saved.getRoles().stream().map(Role::getName).toList();
-        String token = jwtUtil.generateToken(saved.getUsername(), roleNames);
+        String token = jwtUtil.generateToken(saved.getUsername(), roleNames,saved.getId());
         return ResponseEntity.ok(new AuthResponse(token, saved.getUsername()));
     }
 
@@ -80,7 +80,7 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid credentials");
         }
         List<String> roles = u.getRoles().stream().map(Role::getName).toList();
-        String token = jwtUtil.generateToken(u.getUsername(), roles);
+        String token = jwtUtil.generateToken(u.getUsername(), roles,u.getId());
         System.out.print(u.toString());
         return ResponseEntity.ok(new AuthResponse(token, u.getUsername(),u.getId()));
     }

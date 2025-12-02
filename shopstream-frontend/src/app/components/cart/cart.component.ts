@@ -26,19 +26,38 @@ export class CartComponent implements OnInit {
   }
 
   // update quantity from an <input> event
-  public updateQty(id: string, ev: Event): void {
-    const raw = (ev.target as HTMLInputElement).value;
-    // parse integer quantity and ensure a non-negative integer
-    const parsed = parseInt(raw, 10);
-    const qty = Number.isNaN(parsed) ? 0 : Math.max(0, parsed);
+  // cart.component.ts
 
-    if (qty <= 0) {
-      // decide behaviour: remove item when quantity is zero
-      this.cart.remove(id);
-    } else {
-      this.cart.updateQty(id, qty);
-    }
+public updateQty(id: string, ev: Event): void {
+  const input = ev.target as HTMLInputElement;
+  const raw = input.value;
+
+  const parsed = parseInt(raw, 10);
+  let qty = Number.isNaN(parsed) ? 0 : Math.max(0, parsed);
+
+  // find the line to get its stock
+  const currentLine = this.cart.value.find(i => i.productId === id)
+  const maxStock = currentLine?.stock ?? Number.MAX_SAFE_INTEGER;
+
+  console.log(`[Cart] updateQty for ${id}: requested=${raw} parsed=${qty} maxStock=${maxStock}`);
+
+
+  if (qty > maxStock) {
+    // clamp to available stock
+    qty = maxStock;
+    // update the input visually
+    input.value = String(qty);
+    // simple feedback – you can replace with toast/snackbar
+    alert(`Only ${maxStock} units available in stock.`);
   }
+
+  if (qty <= 0) {
+    this.cart.remove(id);
+  } else {
+    this.cart.updateQty(id, qty);
+  }
+}
+
 
   // navigate to checkout route
   public checkout(): void {
@@ -58,6 +77,8 @@ export class CartComponent implements OnInit {
 log(item: CartLine): void {
   console.log('cart item', item);
 }
+
+
 
 
 }
