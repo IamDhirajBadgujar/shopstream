@@ -10,13 +10,18 @@ import java.util.List;
 public class Order {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String ProductName;
     private String shippingAddress;
     private BigDecimal total;
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "order", orphanRemoval = true)
     private List<OrderItem> items;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+    
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
     // getters / setters
     public Long getId() { return id; }
@@ -33,4 +38,16 @@ public class Order {
 
     public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }
+	public String getProductName() {
+		return ProductName;
+	}
+	public void setProductName(String productName) {
+		ProductName = productName;
+	}
+	@Override
+	public String toString() {
+		return "Order [id=" + id + ", ProductName=" + ProductName + ", shippingAddress=" + shippingAddress + ", total="
+				+ total + ", createdAt=" + createdAt + ", items=" + items + ", userId=" + userId + "]";
+	}
+	
 }

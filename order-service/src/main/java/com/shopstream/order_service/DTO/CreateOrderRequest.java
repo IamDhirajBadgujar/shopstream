@@ -4,27 +4,47 @@ package com.shopstream.order_service.dto;
 import java.util.List;
 
 public class CreateOrderRequest {
+	private Long userId;
+	public Long getUserId() {
+        return userId;
+    }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
     public static class Line {
         private String productId;
         private Integer qty;
         private Double price; // optional for client
-        private Long userId;     
-        public String getProductId() { return productId; }
+        private String productName;
+        public String getProductName() {
+			return productName;
+		}
+		public void setProductName(String productName) {
+			this.productName = productName;
+		}
+		public String getProductId() { return productId; }
         public void setProductId(String productId) { this.productId = productId; }
         public Integer getQty() { return qty; }
         public void setQty(Integer qty) { this.qty = qty; }
         public Double getPrice() { return price; }
         public void setPrice(Double price) { this.price = price; }
-        public Long getUserId() {
-            return userId;
-        }
-        public void setUserId(Long userId) {
-            this.userId = userId;
-        }	
+		@Override
+		public String toString() {
+			return "Line [productId=" + productId + ", qty=" + qty + ", price=" + price + ", productName=" + productName
+					+ "]";
+		}
+        
+		
     }
     
 
-    private List<Line> items;
+   
+	@Override
+	public String toString() {
+		return "CreateOrderRequest [userId=" + userId + ", items=" + items + ", shippingAddress=" + shippingAddress
+				+ "]";
+	}
+	private List<Line> items;
     private String shippingAddress;
 
     public List<Line> getItems() { return items; }

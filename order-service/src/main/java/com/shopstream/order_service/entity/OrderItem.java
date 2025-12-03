@@ -8,11 +8,17 @@ import java.math.BigDecimal;
 public class OrderItem {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String productId;
+ 	private String productName;
+    public String getProductName() {
+		return productName;
+	}
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+	private String productId;
     private Integer qty;
     private BigDecimal price;
-
+    
     @ManyToOne
     @JoinColumn(name = "order_id")
     private Order order;
@@ -32,4 +38,11 @@ public class OrderItem {
 
     public Order getOrder() { return order; }
     public void setOrder(Order order) { this.order = order; }
+//	@Override
+//	public String toString() {
+//		return "OrderItem [id=" + id + ", productName=" + productName + ", productId=" + productId + ", qty=" + qty
+//				+ ", price=" + price + ", order=" + order + "]";
+//	}
+    
+    
 }

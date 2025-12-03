@@ -24,6 +24,7 @@ import { Router } from '@angular/router';
         <ng-container *ngIf="(user$ | async) as username; else showLogin">
           <a routerLink="/profile">{{ username }}</a>
           <a *ngIf="(isSupplier$ | async)" routerLink="/supplier">Supplier Dashboard</a>
+          <a routerLink="/orders">My Orders</a>
           <button (click)="logout()" style="padding:6px 8px">Logout</button>
         </ng-container>
 

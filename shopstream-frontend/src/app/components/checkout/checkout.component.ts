@@ -44,7 +44,7 @@ export class CheckoutComponent {
     return (this.cart?.total?.() ?? 0);
   }
 
-  public placeOrder(): void {
+  public placeOrder(): void { 
     this.error = '';
 
     if (!this.userid) {
@@ -52,9 +52,10 @@ export class CheckoutComponent {
       return;
     }
 
-    const itemsSnapshot: { productId: string; qty: number; price: number }[] =
+    const itemsSnapshot: { productId: string; qty: number; price: number,  productName?: string; }[] =
       (this.cart?.value ?? []).map((i: CartLine) => ({
         productId: i.productId,
+          productName : i.name,
         qty: i.qty ?? 0,
         price: i.price ?? 0,
       }));
@@ -76,6 +77,7 @@ export class CheckoutComponent {
       items: itemsSnapshot,
       shippingAddress: this.address,
     };
+    console.log('Placing order with body:', body);
 
     this.http
       .post<{ orderId: string }>('http://localhost:8080/api/orders', body)
