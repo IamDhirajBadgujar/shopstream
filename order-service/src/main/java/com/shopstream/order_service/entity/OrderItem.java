@@ -38,11 +38,16 @@ public class OrderItem {
 
     public Order getOrder() { return order; }
     public void setOrder(Order order) { this.order = order; }
-//	@Override
-//	public String toString() {
-//		return "OrderItem [id=" + id + ", productName=" + productName + ", productId=" + productId + ", qty=" + qty
-//				+ ", price=" + price + ", order=" + order + "]";
-//	}
-    
+	@Override
+	public String toString() {
+	    return "OrderItem [id=" + id
+	            + ", productName=" + productName
+	            + ", productId=" + productId
+	            + ", qty=" + qty
+	            + ", price=" + price
+	            + ", orderId=" + (order != null ? order.getId() : null)
+	            + "]";
+	}
+
     
 }

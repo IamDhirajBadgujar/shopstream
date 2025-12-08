@@ -33,11 +33,14 @@ public class OrderService {
         Order order = new Order();
         order.setShippingAddress(req.getShippingAddress());
         order.setUserId(req.getUserId());
+        List<String> nameList=new ArrayList<>();
         List<OrderItem> items = req.getItems().stream().map(l -> {
             OrderItem oi = new OrderItem();
             oi.setProductId(l.getProductId());
             oi.setQty(l.getQty());
+            System.out.println("--------------------------->>"+l.getProductName());
             oi.setProductName(l.getProductName());
+            nameList.add(l.getProductName());
             oi.setPrice(BigDecimal.valueOf(l.getPrice() == null ? 0.0 : l.getPrice()));
             oi.setOrder(order);
             return oi;
@@ -46,7 +49,7 @@ public class OrderService {
         BigDecimal total = items.stream()
                 .map(i -> i.getPrice().multiply(BigDecimal.valueOf(i.getQty())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-
+       
         order.setItems(items);
         order.setTotal(total);
         System.out.println("-----------------------------------------------------------------------------");
@@ -68,7 +71,7 @@ public class OrderService {
         dto.setShippingAddress(order.getShippingAddress());
         dto.setTotal(order.getTotal());
         dto.setCreatedAt(order.getCreatedAt());
-        dto.setProductName(order.getProductName());
+        
         List<OrderDetails.OrderItemDetails> itemsDto = order.getItems().stream()
                 .map(oi -> {
                     OrderDetails.OrderItemDetails idto = new OrderDetails.OrderItemDetails();
@@ -76,6 +79,7 @@ public class OrderService {
                     idto.setProductId(oi.getProductId());
                     idto.setQty(oi.getQty());
                     idto.setPrice(oi.getPrice());
+                    idto.setProductName(oi.getProductName());
                     return idto;
                 })
                 .toList();

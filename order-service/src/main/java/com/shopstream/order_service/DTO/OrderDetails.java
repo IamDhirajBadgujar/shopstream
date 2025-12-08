@@ -13,16 +13,11 @@ public class OrderDetails {
     private BigDecimal total;
     private LocalDateTime createdAt;
     private List<OrderItemDetails> items;
-    private String productName; 
+ 
     // optional: status, paymentMode, etc.
     // private String status;
 
-    public String getProductName() {
-		return productName;
-	}
-	public void setProductName(String productName) {
-		this.productName = productName;
-	}
+   
 	public Long getOrderId() { return orderId; }
     public void setOrderId(Long orderId) { this.orderId = orderId; }
 

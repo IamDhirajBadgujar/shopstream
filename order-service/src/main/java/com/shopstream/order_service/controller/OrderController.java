@@ -31,8 +31,9 @@ public class OrderController {
     
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> create(@RequestBody CreateOrderRequest req, Authentication auth) {
-        // you can get username: auth.getName()
+    public ResponseEntity<?> create(@RequestBody CreateOrderRequest req) {
+        
+    	System.out.println("---------------------------creating Order /8080/api/order");
     	System.out.println(req.toString());
         Order saved = svc.createOrder(req);
         return ResponseEntity.status(201).body(Map.of("orderId", saved.getId(), "status", "CREATED"));
@@ -41,6 +42,7 @@ public class OrderController {
     public List<OrderDetails> getMyOrders(@AuthenticationPrincipal CustomUserPrincipal principal) {
         Long userId = principal.getUserId();
         List<Order> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    	System.out.println(orders.toString());
         return orders.stream()
                 .map(svc::toOrderDetails)
                 .toList();

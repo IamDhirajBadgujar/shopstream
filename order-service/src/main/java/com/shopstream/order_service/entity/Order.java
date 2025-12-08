@@ -10,8 +10,8 @@ import java.util.List;
 public class Order {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String ProductName;
-    private String shippingAddress;
+  
+	private String shippingAddress;
     private BigDecimal total;
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -38,16 +38,12 @@ public class Order {
 
     public List<OrderItem> getItems() { return items; }
     public void setItems(List<OrderItem> items) { this.items = items; }
-	public String getProductName() {
-		return ProductName;
-	}
-	public void setProductName(String productName) {
-		ProductName = productName;
-	}
 	@Override
 	public String toString() {
-		return "Order [id=" + id + ", ProductName=" + ProductName + ", shippingAddress=" + shippingAddress + ", total="
-				+ total + ", createdAt=" + createdAt + ", items=" + items + ", userId=" + userId + "]";
+		return "Order [id=" + id + ", shippingAddress=" + shippingAddress + ", total=" + total + ", createdAt="
+				+ createdAt + ", items=" + items.toString() + ", userId=" + userId + "]";
 	}
+	
+	
 	
 }
