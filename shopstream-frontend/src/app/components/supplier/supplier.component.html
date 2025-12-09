@@ -1,15 +1,61 @@
 <div style="max-width:640px;margin:18px auto;padding:18px;border:1px solid #ddd">
   <h2>Supplier Dashboard</h2>
-  <div *ngIf="error" style="color:red">{{ error }}</div>
-  <div *ngIf="success" style="color:green">{{ success }}</div>
 
+  <div *ngIf="error" style="color:red;margin-bottom:8px;">{{ error }}</div>
+  <div *ngIf="success" style="color:green;margin-bottom:8px;">{{ success }}</div>
+
+  <!-- Product form -->
+  <div style="margin-bottom:16px;">
+    <h3 style="margin-bottom:8px;">
+      {{ editingId ? 'Update product' : 'Add new product' }}
+    </h3>
+
+    <label>Product name</label><br />
+    <input [(ngModel)]="name" name="name" /><br />
+
+    <label>Price</label><br />
+    <input type="number" [(ngModel)]="price" name="price" /><br />
+
+    <label>Stock</label><br />
+    <input type="number" [(ngModel)]="stock" name="stock" /><br /><br />
+
+    <button (click)="save()">
+      {{ editingId ? 'Update product' : 'Add product' }}
+    </button>
+    <button *ngIf="editingId" (click)="cancelEdit()" style="margin-left:8px;">
+      Cancel
+    </button>
+  </div>
+
+  <!-- Supplier's products list -->
   <div>
-    <label>Product name</label><br/>
-    <input [(ngModel)]="name" name="name"/><br/>
-    <label>Price</label><br/>
-    <input type="number" [(ngModel)]="price" name="price"/><br/>
-    <label>Stock</label><br/>
-    <input type="number" [(ngModel)]="stock" name="stock"/><br/><br/>
-    <button (click)="create()">Add product</button>
+    <h3>Your products</h3>
+
+    <div *ngIf="loading">Loading products...</div>
+    <div *ngIf="!loading && products.length === 0">
+      No products added yet.
+    </div>
+
+    <table *ngIf="!loading && products.length > 0"
+           style="width:100%;border-collapse:collapse;margin-top:8px;">
+      <thead>
+        <tr style="border-bottom:1px solid #eee;">
+          <th style="text-align:left;padding:4px 0;">Name</th>
+          <th style="text-align:right;padding:4px 0;">Price</th>
+          <th style="text-align:right;padding:4px 0;">Stock</th>
+          <th style="text-align:right;padding:4px 0;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let p of products" style="border-bottom:1px solid #f5f5f5;">
+          <td style="padding:4px 0;">{{ p.name }}</td>
+          <td style="text-align:right;padding:4px 0;">₹{{ p.price }}</td>
+          <td style="text-align:right;padding:4px 0;">{{ p.stock }}</td>
+          <td style="text-align:right;padding:4px 0;">
+            <button (click)="startEdit(p)">Edit</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

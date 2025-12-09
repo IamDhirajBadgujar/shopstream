@@ -12,6 +12,7 @@ import { TokenInterceptor } from './interceptors/token.interceptor';
 import { ProfileComponent } from './components/profile/profile.component';
 import { authGuard } from './guards/auth.guard';
 import { SupplierComponent } from './components/supplier/supplier.component';
+import { SupplierGuard } from './guards/supplier.guard';
 export const appConfig: ApplicationConfig = {
   providers: [
     // Provide HttpClientModule + FormsModule for the app
@@ -28,6 +29,7 @@ export const appConfig: ApplicationConfig = {
   { path: 'register', component: RegisterComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
   { path: 'supplier', component: SupplierComponent},
+  {    path: 'supplier',component: SupplierComponent,canActivate: [SupplierGuard] },
   { path: '**', redirectTo: '' }
   
 ])

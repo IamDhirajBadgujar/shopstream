@@ -8,6 +8,7 @@ export interface OrderItemDetails {
   productId: string;
   qty: number;
   price: number;
+  productName: string; 
 }
 
 export interface OrderDetails {
@@ -17,6 +18,7 @@ export interface OrderDetails {
   total: number;
   createdAt: string;
   items: OrderItemDetails[];
+
 }
 
 @Injectable({ providedIn: 'root' })

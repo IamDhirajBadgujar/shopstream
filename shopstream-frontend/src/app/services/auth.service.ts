@@ -220,4 +220,28 @@ login(username: string, password: string): Observable<any> {
     if (typeof r === 'string') return [r];
     return [];
   }
+
+
+  
+  // example: you store JWT in localStorage
+  getToken(): string | null {
+    return localStorage.getItem('token');
+  }
+
+  // decode roles from token or store roles separately
+  getRoles(): string[] {
+    const raw = localStorage.getItem('roles');
+    if (!raw) {
+      return [];
+    }
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  hasRole(role: string): boolean {
+    return this.getRoles().includes(role);
+  }
 }
