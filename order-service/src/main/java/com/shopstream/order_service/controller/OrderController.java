@@ -1,8 +1,10 @@
 package com.shopstream.order_service.controller;
 
 
+import com.shopstream.order_service.InventoryClient;
 import com.shopstream.order_service.dto.CreateOrderRequest;
 import com.shopstream.order_service.dto.OrderDetails;
+import com.shopstream.order_service.dto.SupplierOrderItemDto;
 import com.shopstream.order_service.entity.Order;
 import com.shopstream.order_service.repository.OrderRepository;
 import com.shopstream.order_service.security.CustomUserPrincipal;
@@ -28,6 +30,8 @@ public class OrderController {
 	private OrderRepository orderRepository;
 
     public OrderController(OrderService svc ) { this.svc = svc; }
+    @Autowired
+    public InventoryClient InventoryClient;
     
     @PostMapping
     @PreAuthorize("isAuthenticated()")
@@ -47,6 +51,40 @@ public class OrderController {
                 .map(svc::toOrderDetails)
                 .toList();
     }
+    
+    
+        @GetMapping("/supplier-orders")
+        public ResponseEntity<?> getSupplierOrders(
+                @AuthenticationPrincipal CustomUserPrincipal principal) {
+
+            if (principal == null) {
+                return ResponseEntity.status(401).body("Unauthorized");
+            }
+
+            // You can safely use:
+            Long supplierUserId = principal.getUserId();
+            String username = principal.getUsername();
+
+            // Inventory service resolves supplier via JWT
+            List<String> productIds = null;
+			try {
+				productIds = InventoryClient.getMyProductIds();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+            if (productIds.isEmpty()) {
+                return ResponseEntity.ok(List.of());
+            }
+
+            List<SupplierOrderItemDto> orders =
+                    orderRepository.findOrdersForSupplier(productIds);
+
+            return ResponseEntity.ok(orders);
+        }
+
+    
 
 
 
