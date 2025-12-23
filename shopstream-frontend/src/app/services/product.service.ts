@@ -14,4 +14,18 @@ export class ProductService {
   getAllProducts(): Observable<any[]> {
     return this.http.get<any[]>(this.BASE_URL);
   }
+   searchProducts(filters: any) {
+    return this.http.get<Product[]>('/api/products/search', {
+      params: filters
+    });
+  }
 }
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  category: string;
+}
+

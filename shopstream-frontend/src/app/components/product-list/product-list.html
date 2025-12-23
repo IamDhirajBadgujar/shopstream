@@ -1,4 +1,44 @@
 <!-- parent grid container -->
+ <!-- SEARCH & FILTER BAR -->
+<div class="filters">
+
+  <input
+    type="text"
+    placeholder="Search products"
+    [(ngModel)]="filters.q"
+  />
+
+  <input
+    type="number"
+    placeholder="Min Price"
+    [(ngModel)]="filters.minPrice"
+  />
+
+  <input
+    type="number"
+    placeholder="Max Price"
+    [(ngModel)]="filters.maxPrice"
+  />
+
+  <label class="stock-filter">
+    <input
+      type="checkbox"
+      [(ngModel)]="filters.inStock"
+    />
+    In stock only
+  </label>
+
+  <select [(ngModel)]="filters.sort">
+    <option value="latest">Latest</option>
+    <option value="priceAsc">Price ↑</option>
+    <option value="priceDesc">Price ↓</option>
+  </select>
+
+  <button (click)="search()">Apply</button>
+  <button class="reset" (click)="reset()">Reset</button>
+
+</div>
+
 <div class="product-grid" role="list">
   <!-- each card -->
   <div class="product-card" *ngFor="let p of products" role="listitem">

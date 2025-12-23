@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -40,5 +41,26 @@ public class ProductController {
             p.getStock()
         );
         return ResponseEntity.ok(dto);
+    }
+    
+    @GetMapping("/search")
+    public ResponseEntity<?> searchProducts(@RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Boolean inStock,
+            @RequestParam(defaultValue = "latest") String sort){
+    	
+    	
+    	List<Product> products =productRepo.searchProducts(
+                q,
+                category,
+                minPrice,
+                maxPrice,
+                inStock,
+                sort
+        );
+    	return ResponseEntity.ok(products);
+    	
     }
 }
