@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service'; // 👈 import
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './checkout.component.html',
+  styleUrls: ['./checkout.component.css']
 })
 export class CheckoutComponent {
   public address = '';

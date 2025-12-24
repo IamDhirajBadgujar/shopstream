@@ -1,33 +1,64 @@
-<!-- checkout.component.html -->
-<div style="max-width:700px;margin:0 auto;padding:12px">
-  <h2>Checkout</h2>
+<div class="checkout-container">
+  <h2 class="checkout-title">Checkout</h2>
 
   <ng-container *ngIf="items$ | async as items">
-    <div *ngIf="items.length === 0">
-      Your cart is empty. <a routerLink="/">Go shopping</a>
+    <!-- Empty cart -->
+    <div *ngIf="items.length === 0" class="empty-cart">
+      <p>Your cart is empty.</p>
+      <a routerLink="/" class="shop-link">Go shopping</a>
     </div>
 
-    <div *ngIf="items.length > 0">
-      <div *ngFor="let i of items; trackBy: trackByProductId" style="margin-bottom:6px">
-        <div>{{ i.name }} × {{ i.qty }} — ₹{{ (i.price || 0) * (i.qty || 0) }}</div>
+    <!-- Checkout content -->
+    <div *ngIf="items.length > 0" class="checkout-card">
+      
+      <!-- Order summary -->
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+
+        <div
+          class="order-item"
+          *ngFor="let i of items; trackBy: trackByProductId"
+        >
+          <span class="item-name">
+            {{ i.name }} × {{ i.qty }}
+          </span>
+          <span class="item-price">
+            ₹{{ (i.price || 0) * (i.qty || 0) }}
+          </span>
+        </div>
       </div>
 
-      <div style="margin-top:8px">
-        <label>Shipping Address</label><br />
-        <textarea rows="3" [(ngModel)]="address" style="width:100%"></textarea>
+      <!-- Address -->
+      <div class="address-section">
+        <label for="address">Shipping Address</label>
+        <textarea
+          id="address"
+          rows="3"
+          [(ngModel)]="address"
+          placeholder="Enter your full delivery address"
+        ></textarea>
       </div>
 
-      <div style="margin-top:12px">
-        <strong>Total: ₹{{ total }}</strong>
+      <!-- Total -->
+      <div class="total-section">
+        <span>Total</span>
+        <strong>₹{{ total }}</strong>
       </div>
 
-      <div style="margin-top:12px">
-        <button (click)="placeOrder()" [disabled]="loading">
-          {{ loading ? 'Placing order...' : 'Place Order' }}
-        </button>
+      <!-- Action -->
+      <button
+        class="place-order-btn"
+        (click)="placeOrder()"
+        [disabled]="loading"
+      >
+        {{ loading ? 'Placing order...' : 'Place Order' }}
+      </button>
+
+      <!-- Error -->
+      <div *ngIf="error" class="error-box">
+        {{ error }}
       </div>
 
-      <div *ngIf="error" style="color:red;margin-top:8px">{{ error }}</div>
     </div>
   </ng-container>
 </div>

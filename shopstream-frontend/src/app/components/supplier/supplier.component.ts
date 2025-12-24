@@ -17,7 +17,8 @@ interface SupplierProduct {
   selector: 'app-supplier',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './supplier.component.html'
+  templateUrl: './supplier.component.html',
+  styleUrls: ['./supplier.component.css']
 })
 export class SupplierComponent implements OnInit {
   name = '';

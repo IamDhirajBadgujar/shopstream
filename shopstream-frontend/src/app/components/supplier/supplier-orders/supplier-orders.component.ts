@@ -17,7 +17,8 @@ export interface SupplierOrderItem {
   selector: 'app-supplier-orders',
   standalone: true,               // ✅ if using standalone
   imports: [CommonModule],        // ✅ required for *ngIf, *ngFor
-  templateUrl: './supplier-orders.component.html'
+  templateUrl: './supplier-orders.component.html',
+  styleUrls: ['./supplier-orders.component.css']
 })
 export class SupplierOrdersComponent implements OnInit {
 

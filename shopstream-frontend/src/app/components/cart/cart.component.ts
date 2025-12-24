@@ -9,6 +9,7 @@ import { CartService, CartLine } from '../../services/cart.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './cart.component.html',
+  styleUrls: ['./cart.component.css']
 })
 export class CartComponent implements OnInit {
   items$!: Observable<CartLine[]>; // set in ngOnInit

@@ -4,6 +4,7 @@ package com.shopstream.inventory_service.controller;
 import com.shopstream.inventory_service.dto.ProductDto;
 import com.shopstream.inventory_service.model.Product;
 import com.shopstream.inventory_service.repo.ProductRepository;
+import com.shopstream.inventory_service.repo.ProductSearchRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,13 @@ public class ProductController {
 
 	
     private final ProductRepository productRepo;
+    private final ProductSearchRepository searchRepo;
 
-    public ProductController(ProductRepository productRepo) {
+    public ProductController(ProductSearchRepository searchRepo,ProductRepository productRepo) {
+        this.searchRepo = searchRepo;
         this.productRepo = productRepo;
     }
+    
 
     @GetMapping
     public List<Product> getAll() {
@@ -51,16 +55,13 @@ public class ProductController {
             @RequestParam(required = false) Boolean inStock,
             @RequestParam(defaultValue = "latest") String sort){
     	
+    	System.out.println("Inside Inventory search"+" Qty :-"+q+ " Categoty :-"+" minPrice :-"+minPrice);
     	
-    	List<Product> products =productRepo.searchProducts(
-                q,
-                category,
-                minPrice,
-                maxPrice,
-                inStock,
-                sort
+    	List<Product> products = searchRepo.searchProducts(
+                q, category, minPrice, maxPrice, inStock, sort
         );
-    	return ResponseEntity.ok(products);
+
+        return ResponseEntity.ok(products);
     	
     }
 }

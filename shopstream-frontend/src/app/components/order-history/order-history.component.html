@@ -1,0 +1,48 @@
+<div class="order-history-container">
+      <h2 class="page-title">My Orders</h2>
+
+      <div *ngIf="loading" class="muted">Loading orders...</div>
+      <div *ngIf="error" class="alert error">{{ error }}</div>
+
+      <div *ngIf="!loading && !error && orders.length === 0" class="empty">
+        No orders yet.
+      </div>
+
+      <div *ngFor="let o of orders" class="order-card">
+        <div class="order-header">
+          <div>
+            <strong>Order #{{ o.orderId }}</strong>
+            <div class="order-date">
+              {{ o.createdAt | date:'medium' }}
+            </div>
+          </div>
+
+          <div class="order-total">
+            ₹{{ o.total }}
+          </div>
+        </div>
+
+        <div class="order-address">
+          <span>Shipping Address</span>
+          <p>{{ o.shippingAddress }}</p>
+        </div>
+
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th class="right">Qty</th>
+              <th class="right">Price</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let it of o.items">
+              <td>{{ it.productName }}</td>
+              <td class="right">{{ it.qty }}</td>
+              <td class="right">₹{{ it.price }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>

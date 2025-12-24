@@ -1,33 +1,40 @@
-<h2>My Orders</h2>
+<div class="orders-container">
+  <h2 class="page-title">My Orders</h2>
 
-<div *ngIf="loading">Loading orders...</div>
+  <div *ngIf="loading" class="muted">Loading orders...</div>
 
-<div *ngIf="error" style="color:red">{{ error }}</div>
+  <div *ngIf="error" class="alert error">
+    {{ error }}
+  </div>
 
-<table *ngIf="!loading && orders.length" border="1" cellpadding="8">
-  <thead>
-    <tr>
-      <th>Order ID</th>
-      <th>Buyer</th>
-      <th>Address</th>
-      <th>Product</th>
-      <th>Qty</th>
-      <th>Price</th>
-    </tr>
-  </thead>
+  <table
+    *ngIf="!loading && orders.length"
+    class="orders-table"
+  >
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Buyer</th>
+        <th>Address</th>
+        <th>Product</th>
+        <th class="right">Qty</th>
+        <th class="right">Price</th>
+      </tr>
+    </thead>
 
-  <tbody>
-    <tr *ngFor="let o of orders">
-      <td>{{ o.orderId }}</td>
-      <td>{{ o.userId }}</td>
-      <td>{{ o.address }}</td>
-      <td>{{ o.productName }}</td>
-      <td>{{ o.qty }}</td>
-      <td>₹{{ o.price }}</td>
-    </tr>
-  </tbody>
-</table>
+    <tbody>
+      <tr *ngFor="let o of orders">
+        <td class="order-id">{{ o.orderId }}</td>
+        <td>{{ o.userId }}</td>
+        <td class="address">{{ o.address }}</td>
+        <td>{{ o.productName }}</td>
+        <td class="right">{{ o.qty }}</td>
+        <td class="right price">₹{{ o.price }}</td>
+      </tr>
+    </tbody>
+  </table>
 
-<div *ngIf="!loading && !orders.length">
-  No orders found
+  <div *ngIf="!loading && !orders.length" class="empty">
+    No orders found
+  </div>
 </div>
